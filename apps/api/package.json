@@ -12,7 +12,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file-if-exists=../../.env src/db/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=../../.env src/db/seed.ts",
-    "admin:create": "tsx --env-file-if-exists=../../.env src/scripts/create-admin.ts"
+    "admin:create": "tsx --env-file-if-exists=../../.env src/scripts/create-admin.ts",
+    "vercel:db": "tsx src/db/vercel-prepare.ts"
   },
   "dependencies": {
     "@bayhan/shared": "*",
@@ -29,5 +30,8 @@
     "tsup": "^9.0.0",
     "tsx": "^4.23.15",
     "vitest": "^5.0.5"
+  },
+  "exports": {
+    "./embedded": "./src/embedded.ts"
   }
 }

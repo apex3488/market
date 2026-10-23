@@ -7,7 +7,10 @@ import * as schema from "./schema";
 export type Db = PostgresJsDatabase<typeof schema>;
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
-export const migrationsDir = path.resolve(process.cwd(), "drizzle");
+export const migrationsDir =
+  process.env.MIGRATIONS_DIR ??
+  [path.resolve(process.cwd(), "drizzle"), path.resolve(process.cwd(), "../api/drizzle")].find((d) => fs.existsSync(d)) ??
+  path.resolve(process.cwd(), "drizzle");
 
 interface DbHandle {
   db: Db;
@@ -40,7 +43,7 @@ export async function createDb(url: string): Promise<DbHandle> {
     };
   }
   const { migrate } = await import("drizzle-orm/postgres-js/migrator");
-  const sql = postgres(url, { max: 10, prepare: false, idle_timeout: 20, connect_timeout: 15 });
+  const sql = postgres(url, { max: process.env.VERCEL ? 3 : 10, prepare: false, idle_timeout: 20, connect_timeout: 15 });
   const db = drizzlePg(sql, { schema });
   return {
     db,

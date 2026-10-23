@@ -1,13 +1,15 @@
 import type { NextConfig } from "next";
 
-const api = process.env.API_INTERNAL_URL ?? "http://localhost:4000";
+// Local dev: a separate API server (npm run dev:api). Production on Vercel: API is embedded (app/api/v1).
+const api = process.env.API_INTERNAL_URL ?? (process.env.NODE_ENV === "development" ? "http://localhost:4000" : undefined);
 
 const config: NextConfig = {
-  transpilePackages: ["@bayhan/shared"],
+  transpilePackages: ["@bayhan/shared", "@bayhan/api"],
+  serverExternalPackages: ["@electric-sql/pglite", "postgres"],
   poweredByHeader: false,
-  // The browser talks to the API through this same-origin proxy, so the session cookie stays first-party.
   async rewrites() {
-    return [{ source: "/api/v1/:path*", destination: `${api}/api/v1/:path*` }];
+    // The browser always calls same-origin /api/v1, so the session cookie stays first-party.
+    return api ? { beforeFiles: [{ source: "/api/v1/:path*", destination: `${api}/api/v1/:path*` }] } : [];
   },
   async headers() {
     return [

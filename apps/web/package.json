@@ -6,14 +6,16 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vercel-build": "npm --prefix ../api run vercel:db && next build"
   },
   "dependencies": {
     "@bayhan/shared": "*",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "@bayhan/api": "*"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
