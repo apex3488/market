@@ -65,7 +65,16 @@ npm -w @bayhan/api run start  # API, порт PORT (4000)
 npm -w @bayhan/web run start  # сайт, порт 3000
 ```
 
-API — долгоживущий Node.js-процесс (Render, Railway, Fly.io, VPS). Сайт можно разместить на Vercel, указав `API_INTERNAL_URL`.
+### Vercel (текущий деплой)
+
+Проект `bayhan-market` на Vercel собирается из `apps/web`; API встроен в Next.js (`app/api/v1/[...path]`), отдельный сервер не нужен.
+
+- База: Neon, подключена через интеграцию Vercel — `DATABASE_URL` выставляется автоматически.
+- `AUTH_SECRET` — обязателен; `SEED_DEMO=true` — при сборке добавляет недостающие демо-товары.
+- Скрипт `vercel-build` сначала применяет миграции к Neon, затем собирает сайт. Каждый пуш в `main` деплоится автоматически.
+- Администратор для продакшена: `vercel env pull .env.production.local`, затем `DATABASE_URL=… ADMIN_EMAIL=… ADMIN_PASSWORD=… npm run admin:create`.
+
+Отдельный API-сервер (Render, Railway, VPS) тоже поддерживается: задайте сайту `API_INTERNAL_URL`.
 
 ## Что реализовано
 

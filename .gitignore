@@ -10,3 +10,6 @@ dist/
 apps/mobile/ios/
 apps/mobile/android/
 next-env.d.ts
+
+.vercel
+.env*
