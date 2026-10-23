@@ -1,0 +1,29 @@
+{
+  "name": "bayhan-market",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm -w @bayhan/api run dev",
+    "dev:web": "npm -w @bayhan/web run dev",
+    "dev:telegram": "npm -w @bayhan/telegram run dev",
+    "dev:mobile": "npm -w @bayhan/mobile run start",
+    "db:generate": "npm -w @bayhan/api run db:generate",
+    "db:migrate": "npm -w @bayhan/api run db:migrate",
+    "db:seed": "npm -w @bayhan/api run db:seed",
+    "admin:create": "npm -w @bayhan/api run admin:create",
+    "test": "npm -w @bayhan/api run test",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm -w @bayhan/api run build && npm -w @bayhan/web run build && npm -w @bayhan/telegram run build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}
