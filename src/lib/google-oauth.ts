@@ -34,8 +34,8 @@ export async function exchangeGoogleCode(input: {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       code: input.code,
-      client_id: process.env.GOOGLE_CLIENT_ID ?? "",
-      client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      client_id: (process.env.GOOGLE_CLIENT_ID ?? "").trim(),
+      client_secret: (process.env.GOOGLE_CLIENT_SECRET ?? "").trim(),
       redirect_uri: input.redirectUri,
       grant_type: "authorization_code",
       code_verifier: input.verifier,

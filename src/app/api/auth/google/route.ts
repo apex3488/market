@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   const { verifier, challenge } = createPkce();
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.search = new URLSearchParams({
-    client_id: process.env.GOOGLE_CLIENT_ID ?? "",
+    client_id: (process.env.GOOGLE_CLIENT_ID ?? "").trim(),
     redirect_uri: googleRedirectUri(origin),
     response_type: "code",
     scope: "openid email profile",
