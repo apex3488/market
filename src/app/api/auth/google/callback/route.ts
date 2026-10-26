@@ -13,14 +13,17 @@ export async function GET(request: NextRequest) {
     saved = JSON.parse(request.cookies.get(GOOGLE_STATE_COOKIE)?.value ?? "{}");
   } catch {}
   const locale = saved.locale ?? routing.defaultLocale;
-  const fail = () => {
+  const fail = (reason: string) => {
+    console.error(`[google-callback] ${reason}`);
     const response = NextResponse.redirect(new URL(`/${locale}/account/login?error=google`, origin));
     response.cookies.delete({ name: GOOGLE_STATE_COOKIE, path: "/api/auth/google" });
     return response;
   };
 
   const code = params.get("code");
-  if (!code || !saved.state || !saved.verifier || params.get("state") !== saved.state) return fail();
+  if (params.get("error")) return fail(`google returned error=${params.get("error")}`);
+  if (!saved.state || !saved.verifier) return fail("state cookie missing");
+  if (!code || params.get("state") !== saved.state) return fail("code missing or state mismatch");
 
   let session: string;
   try {
@@ -29,7 +32,7 @@ export async function GET(request: NextRequest) {
       verifier: saved.verifier,
       redirectUri: googleRedirectUri(origin),
     });
-    if (!profile.email || !profile.email_verified) return fail();
+    if (!profile.email || !profile.email_verified) return fail("email missing or not verified");
 
     const user = await userRepository.upsertOAuthUser({
       id: `google-${profile.sub}`,
@@ -44,8 +47,8 @@ export async function GET(request: NextRequest) {
       picture: user.avatarPath,
     });
     await mergeGuestCartIntoUser(user.id);
-  } catch {
-    return fail();
+  } catch (error) {
+    return fail(error instanceof Error ? error.message : String(error));
   }
 
   const response = NextResponse.redirect(new URL(`/${locale}/account`, origin));

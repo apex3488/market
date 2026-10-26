@@ -41,13 +41,16 @@ export async function exchangeGoogleCode(input: {
       code_verifier: input.verifier,
     }),
   });
-  if (!tokenResponse.ok) throw new Error("GOOGLE_TOKEN_FAILED");
+  if (!tokenResponse.ok) {
+    const body = (await tokenResponse.json().catch(() => ({}))) as { error?: string; error_description?: string };
+    throw new Error(`GOOGLE_TOKEN_FAILED ${tokenResponse.status} ${body.error ?? ""} ${body.error_description ?? ""}`);
+  }
   const { access_token: accessToken } = (await tokenResponse.json()) as { access_token?: string };
   if (!accessToken) throw new Error("GOOGLE_TOKEN_FAILED");
 
   const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  if (!profileResponse.ok) throw new Error("GOOGLE_PROFILE_FAILED");
+  if (!profileResponse.ok) throw new Error(`GOOGLE_PROFILE_FAILED ${profileResponse.status}`);
   return (await profileResponse.json()) as GoogleProfile;
 }
