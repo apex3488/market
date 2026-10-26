@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cartRepository } from "@market/data";
 import { removeCartItemAction, updateCartItemAction } from "@/lib/cart-actions";
-import { getCartOwnerKey } from "@/lib/cart";
+import { peekCartOwnerKey } from "@/lib/cart";
 import { formatUzs } from "@/lib/format";
 import { Link } from "@/i18n/navigation";
 
@@ -16,7 +16,7 @@ export default async function CartPage({
   const { error } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations("cart");
-  const ownerKey = await getCartOwnerKey();
+  const ownerKey = await peekCartOwnerKey();
   const cart = await cartRepository.get(ownerKey);
 
   return (

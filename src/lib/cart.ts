@@ -25,6 +25,14 @@ export async function getCartOwnerKey(): Promise<string> {
   return ensureGuestId();
 }
 
+/** For page renders, which may not set cookies: a visitor without a guest cookie simply has an empty cart. */
+export async function peekCartOwnerKey(): Promise<string> {
+  const user = await getSessionUser();
+  if (user) return user.id;
+  const store = await cookies();
+  return store.get(GUEST_COOKIE)?.value ?? "";
+}
+
 export async function mergeGuestCartIntoUser(userId: string) {
   const store = await cookies();
   const guestId = store.get(GUEST_COOKIE)?.value;

@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { cartRepository, userRepository } from "@market/data";
 import { checkoutAction } from "@/lib/cart-actions";
-import { getCartOwnerKey } from "@/lib/cart";
+import { peekCartOwnerKey } from "@/lib/cart";
 import { formatUzs } from "@/lib/format";
 import { getSessionUser } from "@/lib/session";
 import { Link } from "@/i18n/navigation";
@@ -19,7 +19,7 @@ export default async function CheckoutPage({
   setRequestLocale(locale);
   const t = await getTranslations("checkout");
   const user = await getSessionUser();
-  const ownerKey = await getCartOwnerKey();
+  const ownerKey = await peekCartOwnerKey();
   const cart = await cartRepository.get(ownerKey);
   if (cart.items.length === 0) redirect(`/${locale}/cart?error=empty`);
   const addresses = user ? await userRepository.listAddresses(user.id) : [];
