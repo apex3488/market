@@ -204,7 +204,9 @@
     "warranty": "Warranty",
     "returns": "Returns",
     "faq": "Questions",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "info": {
     "about": "Velin is a demonstration catalog of phones, computers, and home appliances. The range and prices are samples.",
@@ -212,6 +214,8 @@
     "warranty": "Warranty periods are omitted because the products are demonstrations.",
     "returns": "Return rules will be published before the first sale.",
     "faq": "Catalog and account use mocks. Neon and payments come next.",
-    "contacts": "A shop contact address is not assigned yet. The form on the home page stores an email only in the browser."
+    "contacts": "A shop contact address is not assigned yet. The form on the home page stores an email only in the browser.",
+    "privacy": "When you sign in with Google, Velin receives only your name, email address, and profile photo. They are used to open your account and are kept in a signed cookie on your device and in the demo server memory. We do not share them with third parties or use them for ads. Sign out in your account to remove the cookie.",
+    "terms": "Velin is a demonstration shop. The catalog, prices, and stock are samples; orders are not charged or delivered. By using the site you accept that it is provided as is and may change without notice."
   }
 }

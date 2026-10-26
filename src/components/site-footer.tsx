@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 import type { CategoryView } from "@market/data";
 import { DemoDialog } from "./demo-dialog";
 
-const service = ["about", "delivery", "warranty", "returns", "faq", "contacts"] as const;
+const service = ["about", "delivery", "warranty", "returns", "faq", "contacts", "privacy", "terms"] as const;
 
 export async function SiteFooter({ categories }: { categories: CategoryView[] }) {
   const t = await getTranslations("footer");

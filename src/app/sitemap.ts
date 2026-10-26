@@ -5,7 +5,7 @@ import { routing } from "@/i18n/routing";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const entries: MetadataRoute.Sitemap = [];
-  const info = ["about", "delivery", "warranty", "returns", "faq", "contacts"];
+  const info = ["about", "delivery", "warranty", "returns", "faq", "contacts", "privacy", "terms"];
 
   for (const locale of routing.locales) {
     entries.push({ url: `${base}/${locale}`, changeFrequency: "daily", priority: 1 });

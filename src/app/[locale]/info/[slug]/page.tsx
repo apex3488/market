@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-const pages = ["about", "delivery", "warranty", "returns", "faq", "contacts"] as const;
+const pages = ["about", "delivery", "warranty", "returns", "faq", "contacts", "privacy", "terms"] as const;
 
 export default async function InfoPage({
   params,
