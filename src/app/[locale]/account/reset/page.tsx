@@ -19,6 +19,7 @@ export default async function ResetPage({
       <h1 className="page-title">{t("resetTitle")}</h1>
       <p className="text-muted">{t("resetText")}</p>
       {error === "missing" ? <p className="text-danger">{t("missing")}</p> : null}
+      {error === "unavailable" ? <p className="text-danger">{t("resetUnavailable")}</p> : null}
       {error === "password" ? <p className="text-danger">{t("passwordShort")}</p> : null}
       <form action={resetPasswordAction} className="grid gap-4">
         <input type="hidden" name="locale" value={locale} />

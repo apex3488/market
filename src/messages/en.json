@@ -126,7 +126,8 @@
     "taken": "This email is already taken.",
     "passwordShort": "Password must be at least 6 characters.",
     "missing": "No account with this email.",
-    "resetOk": "Password updated. Sign in again."
+    "resetOk": "Password updated. Sign in again.",
+    "resetUnavailable": "Password reset by email is not available yet. Sign in with Google or change the password in your profile."
   },
   "account": {
     "title": "Account",

@@ -10,9 +10,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@market/contracts": "*"
+    "@market/contracts": "*",
+    "@neondatabase/serverless": "^1.2.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.12",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

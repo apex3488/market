@@ -132,6 +132,9 @@ export interface UserRepository {
     password: string;
     displayName: string;
   }): Promise<AuthUser>;
+  /** False when the store keeps real accounts: resetting by email alone would let anyone take one over. */
+  supportsDemoReset: boolean;
+  checkPassword(user: AuthUser, password: string): Promise<boolean>;
   /** Finds a user by email or creates one signed in through an OAuth provider (no password). */
   upsertOAuthUser(input: {
     id: string;

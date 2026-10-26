@@ -10,7 +10,7 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const locale = String(formData.get("locale") ?? "ru");
   const user = await userRepository.findAuthByEmail(email);
-  if (!user || !user.password || user.password !== password) {
+  if (!user || !(await userRepository.checkPassword(user, password))) {
     redirect(`/${locale}/account/login?error=invalid`);
   }
   await setSession({ uid: user.id });
@@ -52,6 +52,7 @@ export async function resetPasswordAction(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const locale = String(formData.get("locale") ?? "ru");
+  if (!userRepository.supportsDemoReset) redirect(`/${locale}/account/reset?error=unavailable`);
   const user = await userRepository.findAuthByEmail(email);
   if (!user) redirect(`/${locale}/account/reset?error=missing`);
   if (password.length < 6) redirect(`/${locale}/account/reset?error=password`);

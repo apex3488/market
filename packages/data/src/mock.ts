@@ -166,8 +166,8 @@ function findVariant(variantId: string) {
   return null;
 }
 
-function readCart(ownerKey: string): Cart {
-  const lines = carts.get(ownerKey) ?? new Map<string, number>();
+/** Prices cart lines against the demo catalog; unknown variants are dropped. */
+export function buildCart(ownerKey: string, lines: Iterable<[string, number]>): Cart {
   const items: CartItem[] = [];
   for (const [variantId, quantity] of lines) {
     const found = findVariant(variantId);
@@ -187,6 +187,36 @@ function readCart(ownerKey: string): Cart {
     items,
     totalUzs: items.reduce((sum, item) => sum + item.lineTotalUzs, 0),
   };
+}
+
+export function isOrderableVariant(variantId: string): boolean {
+  const found = findVariant(variantId);
+  return Boolean(found && found.product.status === "published");
+}
+
+/** Checks demo stock for every line, then takes it. Throws UNKNOWN_VARIANT or OUT_OF_STOCK. */
+export function reserveStock(items: CartItem[]): CartItem[] {
+  for (const item of items) {
+    const found = findVariant(item.variantId);
+    if (!found || found.product.status !== "published") throw new Error("UNKNOWN_VARIANT");
+    if (found.variant.stockQuantity < item.quantity) throw new Error("OUT_OF_STOCK");
+  }
+  return items.map((item) => {
+    const found = findVariant(item.variantId)!;
+    found.variant.stockQuantity -= item.quantity;
+    return {
+      variantId: item.variantId,
+      sku: found.variant.sku,
+      title: item.title,
+      unitPriceUzs: found.variant.priceUzs,
+      quantity: item.quantity,
+      lineTotalUzs: found.variant.priceUzs * item.quantity,
+    };
+  });
+}
+
+function readCart(ownerKey: string): Cart {
+  return buildCart(ownerKey, carts.get(ownerKey) ?? new Map<string, number>());
 }
 
 function filterProducts(query: ProductQuery) {
@@ -307,8 +337,7 @@ export const cartRepository = {
     return readCart(ownerKey);
   },
   async add(ownerKey: string, variantId: string, quantity: number) {
-    const found = findVariant(variantId);
-    if (!found || found.product.status !== "published") throw new Error("UNKNOWN_VARIANT");
+    if (!isOrderableVariant(variantId)) throw new Error("UNKNOWN_VARIANT");
     const lines = carts.get(ownerKey) ?? new Map<string, number>();
     lines.set(variantId, (lines.get(variantId) ?? 0) + quantity);
     carts.set(ownerKey, lines);
@@ -338,7 +367,7 @@ export const cartRepository = {
   },
 };
 
-const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
+export const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
   pending: ["confirmed", "cancelled"],
   confirmed: ["shipped", "cancelled"],
   shipped: ["delivered", "cancelled"],
@@ -354,26 +383,7 @@ export const orderRepository: OrderRepository = {
     }
     const cart = readCart(input.ownerKey);
     if (cart.items.length === 0) throw new Error("EMPTY_CART");
-    for (const item of cart.items) {
-      const found = findVariant(item.variantId);
-      if (!found || found.product.status !== "published") throw new Error("UNKNOWN_VARIANT");
-      if (found.variant.stockQuantity < item.quantity) throw new Error("OUT_OF_STOCK");
-    }
-    const pricedItems = cart.items.map((item) => {
-      const found = findVariant(item.variantId)!;
-      return {
-        variantId: item.variantId,
-        sku: found.variant.sku,
-        title: item.title,
-        unitPriceUzs: found.variant.priceUzs,
-        quantity: item.quantity,
-        lineTotalUzs: found.variant.priceUzs * item.quantity,
-      };
-    });
-    for (const item of pricedItems) {
-      const found = findVariant(item.variantId);
-      if (found) found.variant.stockQuantity -= item.quantity;
-    }
+    const pricedItems = reserveStock(cart.items);
     const now = new Date().toISOString();
     const order: Order = {
       id: `order-${orderSeq}`,
@@ -536,6 +546,10 @@ export const userRepository: UserRepository = {
     userSeq += 1;
     users.push(user);
     return user;
+  },
+  supportsDemoReset: true,
+  async checkPassword(user, password) {
+    return user.password !== "" && user.password === password;
   },
   async upsertOAuthUser(input) {
     const email = input.email.trim().toLocaleLowerCase();
