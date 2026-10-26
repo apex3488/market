@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
@@ -11,12 +11,20 @@ function emit() {
   for (const listener of listeners) listener();
 }
 
-function readList(): string[] {
-  if (typeof window === "undefined") return [];
+// The snapshot must be stable between calls, so it is the raw stored string; parsing happens per render.
+function readRaw(): string {
+  if (typeof window === "undefined") return "";
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? (JSON.parse(raw) as string[]) : [];
-    return Array.isArray(parsed) ? parsed.slice(0, 4) : [];
+    return window.localStorage.getItem(STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function parseList(raw: string): string[] {
+  try {
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? (parsed as string[]).slice(0, 4) : [];
   } catch {
     return [];
   }
@@ -41,7 +49,8 @@ function writeList(next: string[]) {
 
 export function CompareToggle({ slug, categorySlug }: { slug: string; categorySlug: string }) {
   const t = useTranslations("compare");
-  const list = useSyncExternalStore(subscribe, readList, () => [] as string[]);
+  const raw = useSyncExternalStore(subscribe, readRaw, () => "");
+  const list = useMemo(() => parseList(raw), [raw]);
   const selected = list.includes(slug);
 
   return (
