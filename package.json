@@ -1,29 +1,38 @@
 {
-  "name": "bayhan-market",
+  "name": "market",
+  "version": "0.1.0",
   "private": true,
-  "version": "1.0.0",
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
-    "dev:api": "npm -w @bayhan/api run dev",
-    "dev:web": "npm -w @bayhan/web run dev",
-    "dev:telegram": "npm -w @bayhan/telegram run dev",
-    "dev:mobile": "npm -w @bayhan/mobile run start",
-    "db:generate": "npm -w @bayhan/api run db:generate",
-    "db:migrate": "npm -w @bayhan/api run db:migrate",
-    "db:seed": "npm -w @bayhan/api run db:seed",
-    "admin:create": "npm -w @bayhan/api run admin:create",
-    "test": "npm -w @bayhan/api run test",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "build": "npm -w @bayhan/api run build && npm -w @bayhan/web run build && npm -w @bayhan/telegram run build"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "npm test -w @market/data",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"packages/**/*.ts\"",
+    "db:generate": "echo Install drizzle-orm drizzle-kit @neondatabase/serverless before migrate. See README."
   },
-  "devDependencies": {
-    "typescript": "5.9.3"
-  },
-  "overrides": {
+  "dependencies": {
+    "@market/contracts": "*",
+    "@market/data": "*",
+    "@phosphor-icons/react": "^2.1.10",
+    "motion": "^12.23.24",
+    "next": "16.4.2",
+    "next-intl": "^4.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
