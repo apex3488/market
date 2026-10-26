@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { loginAction } from "@/lib/auth-actions";
+import { isGoogleConfigured } from "@/lib/google-oauth";
 import { getSessionUser } from "@/lib/session";
 
 export default async function LoginPage({
@@ -21,6 +22,7 @@ export default async function LoginPage({
     <div className="mx-auto grid max-w-md gap-6">
       <h1 className="page-title">{t("loginTitle")}</h1>
       {error === "invalid" ? <p className="text-danger">{t("invalid")}</p> : null}
+      {error === "google" ? <p className="text-danger">{t("googleError")}</p> : null}
       {reset ? <p className="text-success">{t("resetOk")}</p> : null}
       <form action={loginAction} className="grid gap-4">
         <input type="hidden" name="locale" value={locale} />
@@ -36,10 +38,18 @@ export default async function LoginPage({
           {t("login")}
         </button>
       </form>
-      <button type="button" className="btn btn-ghost" disabled title={t("googleHint")}>
-        {t("google")}
-      </button>
-      <p className="text-sm text-muted">{t("googleHint")}</p>
+      {isGoogleConfigured() ? (
+        <a href={`/api/auth/google?locale=${locale}`} className="btn btn-ghost">
+          {t("google")}
+        </a>
+      ) : (
+        <>
+          <button type="button" className="btn btn-ghost" disabled title={t("googleHint")}>
+            {t("google")}
+          </button>
+          <p className="text-sm text-muted">{t("googleHint")}</p>
+        </>
+      )}
       <div className="flex flex-wrap gap-4 text-sm">
         <Link href="/account/register">{t("toRegister")}</Link>
         <Link href="/account/reset">{t("toReset")}</Link>

@@ -118,6 +118,7 @@
     "reset": "Save password",
     "google": "Continue with Google",
     "googleHint": "Google OAuth appears after keys are configured. This button does not sign you in yet.",
+    "googleError": "Google sign-in failed. Please try again.",
     "toRegister": "Create account",
     "toLogin": "Already have an account",
     "toReset": "Forgot password",

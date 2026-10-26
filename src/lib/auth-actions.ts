@@ -1,35 +1,19 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { userRepository } from "@market/data";
 import { mergeGuestCartIntoUser } from "./cart";
-import { SESSION_COOKIE } from "./session";
-
-async function setSession(userId: string) {
-  const store = await cookies();
-  store.set(SESSION_COOKIE, userId, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-  });
-}
-
-async function clearSession() {
-  const store = await cookies();
-  store.delete(SESSION_COOKIE);
-}
+import { clearSession, getSessionUserId, setSession } from "./session";
 
 export async function loginAction(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const locale = String(formData.get("locale") ?? "ru");
   const user = await userRepository.findAuthByEmail(email);
-  if (!user || user.password !== password) {
+  if (!user || !user.password || user.password !== password) {
     redirect(`/${locale}/account/login?error=invalid`);
   }
-  await setSession(user.id);
+  await setSession({ uid: user.id });
   await mergeGuestCartIntoUser(user.id);
   redirect(`/${locale}/account`);
 }
@@ -42,7 +26,7 @@ export async function registerAction(formData: FormData) {
   if (password.length < 6) redirect(`/${locale}/account/register?error=password`);
   try {
     const user = await userRepository.register({ email, password, displayName });
-    await setSession(user.id);
+    await setSession({ uid: user.id });
     await mergeGuestCartIntoUser(user.id);
   } catch {
     redirect(`/${locale}/account/register?error=taken`);
@@ -58,8 +42,7 @@ export async function logoutAction(formData: FormData) {
 
 export async function verifyEmailAction(formData: FormData) {
   const locale = String(formData.get("locale") ?? "ru");
-  const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
+  const userId = await getSessionUserId();
   if (!userId) redirect(`/${locale}/account/login`);
   await userRepository.updateProfile(userId, { emailVerified: true });
   redirect(`/${locale}/account?verified=1`);
@@ -78,8 +61,7 @@ export async function resetPasswordAction(formData: FormData) {
 
 export async function updateProfileAction(formData: FormData) {
   const locale = String(formData.get("locale") ?? "ru");
-  const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
+  const userId = await getSessionUserId();
   if (!userId) redirect(`/${locale}/account/login`);
   const displayName = String(formData.get("displayName") ?? "");
   const phone = String(formData.get("phone") ?? "");
@@ -94,8 +76,7 @@ export async function updateProfileAction(formData: FormData) {
 
 export async function addAddressAction(formData: FormData) {
   const locale = String(formData.get("locale") ?? "ru");
-  const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
+  const userId = await getSessionUserId();
   if (!userId) redirect(`/${locale}/account/login`);
   await userRepository.addAddress(userId, {
     recipient: String(formData.get("recipient") ?? ""),
@@ -110,8 +91,7 @@ export async function addAddressAction(formData: FormData) {
 export async function toggleFavoriteAction(formData: FormData) {
   const locale = String(formData.get("locale") ?? "ru");
   const slug = String(formData.get("slug") ?? "");
-  const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
+  const userId = await getSessionUserId();
   if (!userId) redirect(`/${locale}/account/login`);
   await userRepository.toggleFavorite(userId, slug);
   const back = String(formData.get("back") ?? `/${locale}/p/${slug}`);

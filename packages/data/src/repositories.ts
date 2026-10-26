@@ -132,6 +132,13 @@ export interface UserRepository {
     password: string;
     displayName: string;
   }): Promise<AuthUser>;
+  /** Finds a user by email or creates one signed in through an OAuth provider (no password). */
+  upsertOAuthUser(input: {
+    id: string;
+    email: string;
+    displayName: string;
+    avatarPath: string | null;
+  }): Promise<AuthUser>;
   updateProfile(
     userId: string,
     patch: Partial<Pick<AuthUser, "displayName" | "phone" | "avatarPath" | "password" | "emailVerified">>,
